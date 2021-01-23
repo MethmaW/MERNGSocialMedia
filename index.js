@@ -1,27 +1,24 @@
-const { ApolloServer } = require('apollo-server')
-const gql = require('graphql-tag')
+const { ApolloServer, PubSub } = require('apollo-server')
 const mongose = require('mongoose')
 
+
+//config variables
 const { MONGODB } = require('./config.js')
 
+//mongoose schemas
 const Post = require('./models/Post')
 
+//grahql 
+const typeDefs = require('./graphql/typeDefs')
+const resolvers = require('./graphql/resolvers')
 
-const typeDefs = gql`
-    type Query{
-        sayHi: String!
-    }
-`
 
-const resolvers = {
-    Query: {
-        sayHi: () => 'Hello World'
-    }
-}
+const pubsub = new PubSub();
 
 const server = new ApolloServer({
     typeDefs,
-    resolvers
+    resolvers,
+    context: ({req}) => ({req, pubsub})
 })
 
 mongose
@@ -34,5 +31,4 @@ mongose
         console.log(`Server Running At ${res.url}`)
     ])
 
-    //test
 
